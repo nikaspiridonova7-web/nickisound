@@ -181,12 +181,21 @@
     .item:focus-visible::before,
     .item.active::before{ opacity:1; }
 
+    /* ✅ ПРАВКА: СТОЛБИК ПО ЦЕНТРУ + СТРЕЛКА НЕ ЛОМАЕТ ЦЕНТР */
     .stack{
       display:inline-flex;
       flex-direction:column;
-      align-items:flex-start;
+      align-items:center;   /* было flex-start */
       gap:12px;
       margin-bottom:18px;
+    }
+    .stack .item{
+      text-align:center;
+      padding-left:28px;    /* полоса под стрелку */
+      padding-right:28px;   /* компенсируем слева, чтобы центр был реальным */
+    }
+    .stack .item::before{
+      left:6px;             /* стрелка внутри “полосы”, а не у самого края текста */
     }
 
     .row{
@@ -284,4 +293,22 @@
     if (stackItems.length) setActive(stackItems[0]);
     stackItems.forEach(i => {
       i.addEventListener('pointerdown', () => setActive(i));
-      i.addEventListener('focus', () =>
+      i.addEventListener('focus', () => setActive(i));
+    });
+
+    const music = document.getElementById('music');
+    const musicBtn = document.getElementById('musicBtn');
+    let started = false;
+
+    musicBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!started) {
+        try { await music.play(); started = true; } catch(_) {}
+      }
+      if (music.paused) return;
+      music.muted = !music.muted;
+      musicBtn.textContent = music.muted ? '🔇' : '🔊';
+    });
+  </script>
+</body>
+</html>

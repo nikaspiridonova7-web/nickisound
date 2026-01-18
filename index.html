@@ -38,16 +38,17 @@
       z-index:0;
     }
 
+    /* верхняя темная зона */
     .topShade{
       position:fixed;
       top:0; left:0; right:0;
-      height:170px;
+      height:180px;
       z-index:1;
       pointer-events:none;
       background: linear-gradient(
         to bottom,
         rgba(0,0,0,0.92) 0%,
-        rgba(0,0,0,0.60) 42%,
+        rgba(0,0,0,0.55) 45%,
         rgba(0,0,0,0.00) 100%
       );
     }
@@ -61,10 +62,10 @@
       );
     }
 
-    /* Ник — центрируем по-настоящему: НИКАКИХ правых padding под кнопку */
+    /* НИК: без обрезки, просто ниже + больше доступной ширины */
     .handleTop{
       position:fixed;
-      top:64px;
+      top:92px;                 /* ОПУСТИЛИ ниже */
       left:50%;
       transform:translateX(-50%);
       z-index:2;
@@ -85,16 +86,16 @@
       text-align:center;
       padding: 4px 12px;
 
-      /* защита от перекрытия кнопкой звука */
-      max-width: calc(100vw - 92px);
-      overflow:hidden;
-      text-overflow: ellipsis;
+      /* главное: НЕ режем и НЕ ставим ellipsis */
+      max-width: calc(100vw - 24px);
+      overflow: visible;
+      text-overflow: clip;
     }
 
-    /* Кнопку звука уводим чуть ниже, чтобы она не мешала нику */
+    /* Кнопку звука уводим выше/правее, чтобы не пересекалась */
     #musicBtn{
       position:fixed;
-      right:12px; top:20px;
+      right:12px; top:16px;
       width:54px; height:54px;
       border-radius:50%;
       border:1px solid rgba(255,255,255,0.12);
@@ -118,10 +119,11 @@
       padding:24px;
     }
 
+    /* БЛОК ССЫЛОК: ОПУСКАЕМ к центру экрана */
     .block{
       width:min(760px, 94vw);
       text-align:center;
-      transform: translateY(-30px);
+      transform: translateY(30px);   /* было слишком высоко — опустили */
       user-select:none;
     }
 
@@ -187,13 +189,12 @@
       margin-bottom:18px;
     }
 
-    /* НИЖНИЙ РЯД: НЕ переносим, а поджимаем */
     .row{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:18px;         /* было больше — уменьшаем */
-      flex-wrap:nowrap; /* запрет переноса */
+      gap:18px;
+      flex-wrap:nowrap;
       white-space:nowrap;
       max-width: 94vw;
     }
@@ -202,7 +203,7 @@
       padding-left:0;
       display:inline-flex;
       align-items:center;
-      gap:6px;          /* иконка ближе к тексту */
+      gap:6px;
     }
     .row .item::before{ display:none; }
 
@@ -210,27 +211,21 @@
       width:20px;
       height:20px;
       object-fit:contain;
-
-      /* белое свечение как у текста */
       filter:
         drop-shadow(0 0 6px rgba(255,255,255,0.60))
         drop-shadow(0 0 14px rgba(255,255,255,0.30));
       opacity:0.98;
-      margin-right:0; /* не добавляем лишние отступы */
     }
 
-    /* Если экран узкий — уменьшаем именно НИЖНИЙ ряд */
     @media (max-width:520px){
-      .handleTop{ font-size:40px; top:56px; max-width: calc(100vw - 86px); }
+      .handleTop{ font-size:40px; top:86px; max-width: calc(100vw - 16px); }
       .item{ font-size:22px; }
-      .block{ transform: translateY(-24px); }
-
       .row{ gap:14px; }
-      .row .item{ font-size:18px; }  /* ключ: меньше шрифт вместо переноса */
+      .row .item{ font-size:18px; }
       .socIcon{ width:18px; height:18px; }
+      .block{ transform: translateY(26px); }
     }
 
-    /* На совсем узких (типа маленьких телефонов) — ещё чуть ужимаем */
     @media (max-width:380px){
       .row{ gap:10px; }
       .row .item{ font-size:16px; }
@@ -281,7 +276,6 @@
   </div>
 
   <script>
-    // selected item only for stack
     const stackItems = Array.from(document.querySelectorAll('.stack .item'));
     function setActive(el){
       stackItems.forEach(i => i.classList.remove('active'));
@@ -290,23 +284,4 @@
     if (stackItems.length) setActive(stackItems[0]);
     stackItems.forEach(i => {
       i.addEventListener('pointerdown', () => setActive(i));
-      i.addEventListener('focus', () => setActive(i));
-    });
-
-    // Music toggle
-    const music = document.getElementById('music');
-    const musicBtn = document.getElementById('musicBtn');
-    let started = false;
-
-    musicBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      if (!started) {
-        try { await music.play(); started = true; } catch(_) {}
-      }
-      if (music.paused) return;
-      music.muted = !music.muted;
-      musicBtn.textContent = music.muted ? '🔇' : '🔊';
-    });
-  </script>
-</body>
-</html>
+      i.addEventListener('focus', () =>

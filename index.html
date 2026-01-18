@@ -1,139 +1,317 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Artist Bio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>n1ckiSound</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: black;
-      font-family: Arial, sans-serif;
+    :root{
+      --cyan:#62e7ff;
+      --cyan2:#18b6ff;
+      --text:#e8fbff;
+      --glass: rgba(5, 25, 35, 0.42);
+      --glass2: rgba(0, 0, 0, 0.18);
+      --stroke: rgba(140, 240, 255, 0.22);
+      --shadow: rgba(0,0,0,0.55);
     }
 
-    /* VIDEO BACKGROUND */
-    video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-      z-index: 0;
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;overflow:hidden;background:#000;font-family:Arial, sans-serif;}
+
+    /* VIDEO BG */
+    #bg{
+      position:fixed; inset:0;
+      width:100vw; height:100vh;
+      object-fit:cover;
+      z-index:0;
+      transform:scale(1.02);
+      filter:saturate(1.05) contrast(1.02);
     }
 
-    /* DARK OVERLAY */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 1;
+    /* OVERLAYS (depth + scanlines) */
+    .vignette{
+      position:fixed; inset:0; z-index:1; pointer-events:none;
+      background:
+        radial-gradient(ellipse at center, rgba(0,0,0,0.10), rgba(0,0,0,0.65));
+    }
+    .scanlines{
+      position:fixed; inset:0; z-index:2; pointer-events:none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03),
+        rgba(255,255,255,0.03) 1px,
+        rgba(0,0,0,0) 3px,
+        rgba(0,0,0,0) 6px
+      );
+      opacity:0.18;
+      mix-blend-mode: overlay;
     }
 
-    /* CONTENT */
-    .content {
-      position: relative;
-      z-index: 2;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #9fe7ff;
-      text-align: center;
+    /* LAYOUT */
+    .wrap{
+      position:relative; z-index:3;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
     }
 
-    h1 {
-      margin-bottom: 30px;
-      text-shadow: 0 0 20px #4cc3ff;
+    /* MENU GLASS PANEL (PS-ish) */
+    .panel{
+      width:min(720px, 92vw);
+      padding:22px 20px 18px;
+      border-radius:18px;
+      background: linear-gradient(180deg, var(--glass), var(--glass2));
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 18px 48px var(--shadow),
+        inset 0 0 0 1px rgba(255,255,255,0.03);
+      backdrop-filter: blur(7px);
     }
 
-    /* PS-STYLE BUTTONS */
-    .btn {
-      width: 260px;
-      padding: 14px;
-      margin: 10px 0;
-      text-decoration: none;
-      color: #9fe7ff;
-      font-size: 18px;
-      border-radius: 14px;
-      background: rgba(0, 40, 60, 0.6);
-      border: 1px solid rgba(120, 220, 255, 0.4);
-      box-shadow: 0 0 20px rgba(120,220,255,0.25);
-      transition: all 0.25s ease;
+    /* TITLE */
+    .title{
+      display:flex;
+      align-items:baseline;
+      justify-content:flex-start;
+      gap:10px;
+      margin-bottom:12px;
+      user-select:none;
+    }
+    .title .handle{
+      font-size:34px;
+      font-weight:800;
+      color:var(--text);
+      letter-spacing:0.01em;
+      text-shadow:
+        0 0 14px rgba(98,231,255,0.22),
+        0 0 28px rgba(24,182,255,0.16);
+    }
+    .title .sub{
+      font-size:14px;
+      color:rgba(232,251,255,0.68);
+      letter-spacing:0.12em;
+      text-transform:uppercase;
     }
 
-    .btn:hover {
-      background: rgba(0, 80, 120, 0.8);
-      box-shadow: 0 0 35px rgba(120,220,255,0.6);
-      transform: translateY(-2px);
+    /* MENU LIST */
+    .menu{
+      margin-top:12px;
+      display:flex;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+    .col{
+      flex:1 1 320px;
+      min-width:260px;
+    }
+
+    .heading{
+      margin:10px 0 8px;
+      font-size:14px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:rgba(232,251,255,0.65);
+    }
+
+    .item{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px 14px 12px 34px; /* space for indicator */
+      margin:8px 0;
+      border-radius:12px;
+      text-decoration:none;
+      background: rgba(0,0,0,0.18);
+      border:1px solid rgba(255,255,255,0.06);
+      transition: transform .16s ease, background .16s ease, box-shadow .16s ease, border-color .16s ease;
+      outline:none;
+    }
+
+    /* Left triangle indicator (like selection arrow) */
+    .item::before{
+      content:"▶";
+      position:absolute;
+      left:12px;
+      opacity:0;
+      transform:translateX(-3px);
+      transition: opacity .16s ease, transform .16s ease;
+      color:var(--cyan);
+      text-shadow: 0 0 10px rgba(98,231,255,0.35);
+      font-size:12px;
+    }
+
+    /* Highlight bar under text (like PS selection glow) */
+    .item::after{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border-radius:10px;
+      background: linear-gradient(90deg,
+        rgba(98,231,255,0.00),
+        rgba(98,231,255,0.12),
+        rgba(24,182,255,0.10),
+        rgba(98,231,255,0.00)
+      );
+      opacity:0;
+      transition: opacity .16s ease;
+      pointer-events:none;
+    }
+
+    .label{
+      position:relative; /* above after highlight */
+      z-index:1;
+      font-size:18px;
+      color:var(--cyan);
+      text-shadow:
+        0 0 12px rgba(98,231,255,0.32),
+        0 0 22px rgba(24,182,255,0.18);
+      letter-spacing:0.01em;
+    }
+
+    /* Active/hover/focus states */
+    .item:hover,
+    .item:focus-visible,
+    .item.active{
+      background: rgba(0,35,48,0.32);
+      border-color: var(--stroke);
+      box-shadow:
+        0 0 0 1px rgba(98,231,255,0.16),
+        0 0 28px rgba(98,231,255,0.12);
+      transform: translateY(-1px);
+    }
+    .item:hover::before,
+    .item:focus-visible::before,
+    .item.active::before{
+      opacity:1;
+      transform:translateX(0);
+    }
+    .item:hover::after,
+    .item:focus-visible::after,
+    .item.active::after{
+      opacity:1;
     }
 
     /* MUSIC BUTTON */
-    #music-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      font-size: 22px;
-      cursor: pointer;
-      border: none;
-      background: rgba(0,0,0,0.6);
-      color: #9fe7ff;
-      box-shadow: 0 0 20px rgba(120,220,255,0.4);
-      z-index: 3;
+    #musicBtn{
+      position:fixed;
+      right:16px; top:16px;
+      width:54px; height:54px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.55);
+      color: var(--text);
+      font-size:22px;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      z-index:4;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      user-select:none;
+    }
+    #musicBtn:hover{ transform: translateY(-1px); box-shadow: 0 0 26px rgba(98,231,255,0.14), 0 12px 26px rgba(0,0,0,0.35); background: rgba(0,25,35,0.55); }
+
+    @media (max-width:520px){
+      .title .handle{ font-size:28px; }
+      .label{ font-size:16px; }
+      .panel{ padding:18px 16px 14px; }
     }
   </style>
 </head>
 
 <body>
-
   <!-- VIDEO -->
-  <video autoplay muted loop playsinline>
-    <source src="video.mp4" type="video/mp4">
+  <video id="bg" autoplay muted loop playsinline>
+    <source src="video.mp4" type="video/mp4" />
   </video>
 
-  <div class="overlay"></div>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
 
   <!-- MUSIC -->
-  <audio id="music" loop>
-    <source src="music.mp3" type="audio/mpeg">
+  <audio id="music" loop preload="auto">
+    <source src="music.mp3" type="audio/mpeg" />
   </audio>
+  <button id="musicBtn" aria-label="Музыка">🔇</button>
 
-  <button id="music-btn">🔇</button>
+  <div class="wrap">
+    <div class="panel">
+      <div class="title">
+        <div class="handle">@n1ckiSound</div>
+        <div class="sub">Main Menu</div>
+      </div>
 
-  <div class="content">
-    <h1>@n1ckiSound</h1>
+      <div class="menu">
+        <div class="col">
+          <div class="heading">Music Platforms</div>
 
-    <a class="btn" href="#" target="_blank">Spotify</a>
-    <a class="btn" href="#" target="_blank">SoundCloud</a>
-    <a class="btn" href="#" target="_blank">Telegram</a>
+          <a class="item" href="https://open.spotify.com/artist/1ryjUVQTeFololSwWIJ5ij" target="_blank" rel="noopener">
+            <span class="label">Spotify</span>
+          </a>
+
+          <a class="item" href="https://on.soundcloud.com/QUWKgrPuFXBpHF57A" target="_blank" rel="noopener">
+            <span class="label">SoundCloud</span>
+          </a>
+
+          <a class="item" href="https://music.yandex.ru/artist/12158276" target="_blank" rel="noopener">
+            <span class="label">Yandex Music</span>
+          </a>
+        </div>
+
+        <div class="col">
+          <div class="heading">Social</div>
+
+          <a class="item" href="https://t.me/n1ckiSound" target="_blank" rel="noopener">
+            <span class="label">Telegram</span>
+          </a>
+
+          <a class="item" href="https://www.instagram.com/n1ckisound?igsh=a2RhOWFwNGYycjgw" target="_blank" rel="noopener">
+            <span class="label">Instagram</span>
+          </a>
+
+          <a class="item" href="https://www.tiktok.com/@yyn1cki?_r=1&_t=ZM-932dV15SBUC" target="_blank" rel="noopener">
+            <span class="label">TikTok</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
+    // Make items behave like "selected menu" on touch/click
+    const items = Array.from(document.querySelectorAll('.item'));
+    function setActive(el){
+      items.forEach(i => i.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+    items.forEach(i => {
+      i.addEventListener('pointerdown', () => setActive(i));
+      i.addEventListener('focus', () => setActive(i));
+    });
+    // Default selection
+    setActive(items[0]);
+
+    // Music toggle (mobile-safe: starts only after user click)
     const music = document.getElementById('music');
-    const btn = document.getElementById('music-btn');
+    const musicBtn = document.getElementById('musicBtn');
     let started = false;
 
-    btn.addEventListener('click', async () => {
+    musicBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       if (!started) {
-        await music.play(); // первый клик — разрешение браузера
-        started = true;
-        music.muted = false;
-        btn.textContent = '🔊';
-      } else {
-        music.muted = !music.muted;
-        btn.textContent = music.muted ? '🔇' : '🔊';
+        try { await music.play(); started = true; } catch(_) {}
       }
+      // If still paused (blocked), do nothing
+      if (music.paused) return;
+
+      music.muted = !music.muted;
+      musicBtn.textContent = music.muted ? '🔇' : '🔊';
     });
   </script>
-
 </body>
 </html>

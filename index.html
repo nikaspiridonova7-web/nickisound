@@ -5,18 +5,20 @@
   <title>n1ckiSound</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- PS-ish techno font -->
+  <!-- Tech/console font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      /* ближе к PS BB: яркий синий/циан */
-      --ps-blue: #24c8ff;
-      --ps-blue2:#1aa7ff;
-      --ps-yellow:#ffd54a;
-      --white:#eafcff;
+      /* ТЕМНО-СИНИЙ текст + яркая синяя подсветка */
+      --ps-deep: #0b4e7a;      /* цвет букв (темный) */
+      --glow1:  rgba(42, 190, 255, 0.70);
+      --glow2:  rgba(20, 140, 255, 0.55);
+      --glow3:  rgba(20, 140, 255, 0.30);
+
+      --white: #eafcff;
     }
 
     *{ box-sizing:border-box; }
@@ -36,14 +38,13 @@
       z-index:0;
     }
 
-    /* ВАЖНО: никакого blur/стекла. Только очень лёгкая виньетка для читабельности.
-       Если хочешь вообще без неё — просто поставь opacity:0; */
+    /* лёгкая виньетка (не затемняет видео сильно) */
     .vignette{
       position:fixed; inset:0;
       z-index:1; pointer-events:none;
       background: radial-gradient(ellipse at center,
-        rgba(0,0,0,0.00) 35%,
-        rgba(0,0,0,0.18) 100%
+        rgba(0,0,0,0.00) 45%,
+        rgba(0,0,0,0.12) 100%
       );
     }
 
@@ -58,7 +59,6 @@
       padding:24px;
     }
 
-    /* Block centered like in your example (over video, centered) */
     .block{
       width:min(720px, 92vw);
       text-align:center;
@@ -71,53 +71,44 @@
       font-weight:800;
       color:var(--white);
       letter-spacing:0.02em;
-      /* заметная подсветка */
       text-shadow:
-        0 0 10px rgba(36,200,255,0.35),
-        0 0 22px rgba(26,167,255,0.28),
-        0 0 44px rgba(26,167,255,0.18);
-      margin-bottom:8px;
-    }
-
-    .mainmenu{
-      font-size:20px;
-      font-weight:700;
-      color:var(--ps-yellow);
-      letter-spacing:0.06em;
-      text-shadow:
-        0 0 10px rgba(255,213,74,0.35),
-        0 0 18px rgba(255,213,74,0.18);
+        0 0 12px rgba(42,190,255,0.40),
+        0 0 26px rgba(20,140,255,0.28),
+        0 0 54px rgba(20,140,255,0.18);
       margin-bottom:18px;
     }
 
-    /* List centered as a block, but text aligned like PS menu */
+    /* List centered block, items align like menu */
     .list{
       display:inline-flex;
       flex-direction:column;
       gap:12px;
-      align-items:flex-start; /* пункты “лесенкой” как меню */
+      align-items:flex-start;
     }
 
-    /* Items are TEXT ONLY (no boxes) */
+    /* Items = TEXT ONLY */
     .item{
       position:relative;
       display:inline-block;
-      padding-left:28px;   /* место под треугольник */
+      padding-left:28px; /* под стрелку */
       font-size:28px;
       font-weight:700;
       letter-spacing:0.01em;
-      color: var(--ps-blue);
+
+      color: var(--ps-deep);
       text-decoration:none;
 
-      /* чтобы подсветка читалась на любом фоне */
-      -webkit-text-stroke: 0.6px rgba(0,0,0,0.35);
+      /* контур, чтобы тёмный текст не терялся */
+      -webkit-text-stroke: 0.7px rgba(0,0,0,0.45);
 
+      /* СИЛЬНАЯ подсветка */
       text-shadow:
-        0 0 6px  rgba(36,200,255,0.40),
-        0 0 14px rgba(26,167,255,0.30),
-        0 0 28px rgba(26,167,255,0.18);
+        0 0 6px  var(--glow1),
+        0 0 14px var(--glow2),
+        0 0 34px var(--glow3),
+        0 0 60px rgba(20,140,255,0.22);
 
-      opacity:0.95;
+      opacity:0.98;
       transition: transform .12s ease, opacity .12s ease, color .12s ease, text-shadow .12s ease;
       outline:none;
     }
@@ -130,25 +121,25 @@
       top:50%;
       transform: translateY(-50%);
       width:0; height:0;
-      border-left:12px solid var(--ps-blue);
+      border-left:12px solid rgba(42,190,255,0.95);
       border-top:7px solid transparent;
       border-bottom:7px solid transparent;
       opacity:0;
-      filter: drop-shadow(0 0 10px rgba(36,200,255,0.40));
+      filter: drop-shadow(0 0 12px rgba(42,190,255,0.55));
       transition: opacity .12s ease;
     }
 
-    /* hover/active = сильнее glow, чуть ярче */
     .item:hover,
     .item:focus-visible,
     .item.active{
       opacity:1;
       transform: translateX(3px);
-      color:#6fe6ff;
+      color: #0f6ea8; /* чуть ярче при выделении */
       text-shadow:
-        0 0 8px  rgba(36,200,255,0.55),
-        0 0 18px rgba(26,167,255,0.38),
-        0 0 40px rgba(26,167,255,0.22);
+        0 0 8px  rgba(42,190,255,0.85),
+        0 0 18px rgba(20,140,255,0.65),
+        0 0 42px rgba(20,140,255,0.36),
+        0 0 80px rgba(20,140,255,0.24);
     }
     .item:hover::before,
     .item:focus-visible::before,
@@ -170,13 +161,12 @@
       place-items:center;
       cursor:pointer;
       z-index:3;
-      text-shadow: 0 0 18px rgba(36,200,255,0.25);
+      text-shadow: 0 0 18px rgba(42,190,255,0.25);
       user-select:none;
     }
 
     @media (max-width:520px){
       .handle{ font-size:34px; }
-      .mainmenu{ font-size:16px; }
       .item{ font-size:22px; }
     }
   </style>
@@ -197,21 +187,21 @@
   <div class="wrap">
     <div class="block">
       <div class="handle">@n1ckiSound</div>
-      <div class="mainmenu">Main Menu</div>
 
       <div class="list" aria-label="Links">
+        <!-- ПОРЯДОК = как ты прислала -->
+        <a class="item" href="https://music.yandex.ru/artist/12158276" target="_blank" rel="noopener">Yandex Music</a>
         <a class="item" href="https://open.spotify.com/artist/1ryjUVQTeFololSwWIJ5ij" target="_blank" rel="noopener">Spotify</a>
         <a class="item" href="https://on.soundcloud.com/QUWKgrPuFXBpHF57A" target="_blank" rel="noopener">SoundCloud</a>
-        <a class="item" href="https://music.yandex.ru/artist/12158276" target="_blank" rel="noopener">Yandex Music</a>
         <a class="item" href="https://t.me/n1ckiSound" target="_blank" rel="noopener">Telegram</a>
-        <a class="item" href="https://www.instagram.com/n1ckisound?igsh=a2RhOWFwNGYycjgw" target="_blank" rel="noopener">Instagram</a>
-        <a class="item" href="https://www.tiktok.com/@yyn1cki?_r=1&_t=ZM-932dV15SBUC" target="_blank" rel="noopener">TikTok</a>
+        <a class="item" href="https://www.instagram.com/n1ckisound" target="_blank" rel="noopener">Instagram</a>
+        <a class="item" href="https://www.tiktok.com/@yyn1cki" target="_blank" rel="noopener">TikTok</a>
       </div>
     </div>
   </div>
 
   <script>
-    // “selected item” like console menu
+    // selected item like console menu
     const items = Array.from(document.querySelectorAll('.item'));
     function setActive(el){
       items.forEach(i => i.classList.remove('active'));

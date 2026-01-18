@@ -11,17 +11,14 @@
 
   <style>
     :root{
-      /* ЧЕРНЫЙ текст */
       --ink: #050505;
 
-      /* БЕЛОЕ свечение (важно: меняем glow на white) */
-      --wg1: rgba(255,255,255,0.90);
-      --wg2: rgba(255,255,255,0.60);
-      --wg3: rgba(255,255,255,0.30);
+      /* белое свечение */
+      --wg1: rgba(255,255,255,0.92);
+      --wg2: rgba(255,255,255,0.62);
+      --wg3: rgba(255,255,255,0.32);
 
-      /* тонкая светлая обводка (чтоб черный контур читался) */
       --stroke: rgba(255,255,255,0.30);
-
       --ui: #eafcff;
     }
 
@@ -41,7 +38,6 @@
       z-index:0;
     }
 
-    /* верхняя темная зона */
     .topShade{
       position:fixed;
       top:0; left:0; right:0;
@@ -56,7 +52,6 @@
       );
     }
 
-    /* легкая виньетка */
     .vignette{
       position:fixed; inset:0;
       z-index:1; pointer-events:none;
@@ -66,10 +61,10 @@
       );
     }
 
-    /* НИК: опускаем ниже + не даём залезать под кнопку звука */
+    /* Ник — центрируем по-настоящему: НИКАКИХ правых padding под кнопку */
     .handleTop{
       position:fixed;
-      top:64px;                 /* было выше — опускаем */
+      top:64px;
       left:50%;
       transform:translateX(-50%);
       z-index:2;
@@ -80,8 +75,6 @@
 
       color: var(--ink);
       -webkit-text-stroke: 0.9px var(--stroke);
-
-      /* БЕЛОЕ свечение */
       text-shadow:
         0 0 10px var(--wg1),
         0 0 26px var(--wg2),
@@ -92,11 +85,29 @@
       text-align:center;
       padding: 4px 12px;
 
-      /* чтобы ник не прятался за кнопкой звука справа */
-      padding-right: 84px;
+      /* защита от перекрытия кнопкой звука */
+      max-width: calc(100vw - 92px);
+      overflow:hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Центрируем/поднимаем весь блок ссылок */
+    /* Кнопку звука уводим чуть ниже, чтобы она не мешала нику */
+    #musicBtn{
+      position:fixed;
+      right:12px; top:20px;
+      width:54px; height:54px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.40);
+      color: var(--ui);
+      font-size:22px;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      z-index:3;
+      user-select:none;
+    }
+
     .wrap{
       position:relative;
       z-index:2;
@@ -110,14 +121,10 @@
     .block{
       width:min(760px, 94vw);
       text-align:center;
-
-      /* было ниже — теперь ПОДНИМАЕМ (и сильнее центрируем по вертикали) */
       transform: translateY(-30px);
-
       user-select:none;
     }
 
-    /* Общий стиль ссылок */
     .item{
       position:relative;
       display:inline-block;
@@ -129,8 +136,6 @@
       text-decoration:none;
 
       -webkit-text-stroke: 0.8px var(--stroke);
-
-      /* БЕЛОЕ свечение (усиленное) */
       text-shadow:
         0 0 8px  var(--wg1),
         0 0 18px var(--wg2),
@@ -144,7 +149,6 @@
       white-space:nowrap;
     }
 
-    /* Стрелка только для столбика */
     .item::before{
       content:"";
       position:absolute;
@@ -173,9 +177,7 @@
     }
     .item:hover::before,
     .item:focus-visible::before,
-    .item.active::before{
-      opacity:1;
-    }
+    .item.active::before{ opacity:1; }
 
     .stack{
       display:inline-flex;
@@ -185,19 +187,22 @@
       margin-bottom:18px;
     }
 
+    /* НИЖНИЙ РЯД: НЕ переносим, а поджимаем */
     .row{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:26px;
-      flex-wrap:wrap;
+      gap:18px;         /* было больше — уменьшаем */
+      flex-wrap:nowrap; /* запрет переноса */
+      white-space:nowrap;
+      max-width: 94vw;
     }
 
     .row .item{
       padding-left:0;
       display:inline-flex;
       align-items:center;
-      gap:10px;
+      gap:6px;          /* иконка ближе к тексту */
     }
     .row .item::before{ display:none; }
 
@@ -206,38 +211,30 @@
       height:20px;
       object-fit:contain;
 
-      /* белый “ореол” чтобы иконка читалась */
-      filter: drop-shadow(0 0 10px rgba(255,255,255,0.25));
-      opacity:0.95;
+      /* белое свечение как у текста */
+      filter:
+        drop-shadow(0 0 6px rgba(255,255,255,0.60))
+        drop-shadow(0 0 14px rgba(255,255,255,0.30));
+      opacity:0.98;
+      margin-right:0; /* не добавляем лишние отступы */
     }
 
-    /* Кнопка звука — уводим чуть правее/вверх, чтобы не накрывала ник */
-    #musicBtn{
-      position:fixed;
-      right:12px; top:16px;
-      width:54px; height:54px;
-      border-radius:50%;
-      border:1px solid rgba(255,255,255,0.12);
-      background: rgba(0,0,0,0.40);
-      color: var(--ui);
-      font-size:22px;
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      z-index:3;
-      user-select:none;
-    }
-
+    /* Если экран узкий — уменьшаем именно НИЖНИЙ ряд */
     @media (max-width:520px){
-      .handleTop{
-        font-size:40px;
-        top:56px;
-        padding-right: 74px;
-      }
+      .handleTop{ font-size:40px; top:56px; max-width: calc(100vw - 86px); }
       .item{ font-size:22px; }
-      .row{ gap:18px; }
-      .socIcon{ width:18px; height:18px; }
       .block{ transform: translateY(-24px); }
+
+      .row{ gap:14px; }
+      .row .item{ font-size:18px; }  /* ключ: меньше шрифт вместо переноса */
+      .socIcon{ width:18px; height:18px; }
+    }
+
+    /* На совсем узких (типа маленьких телефонов) — ещё чуть ужимаем */
+    @media (max-width:380px){
+      .row{ gap:10px; }
+      .row .item{ font-size:16px; }
+      .socIcon{ width:16px; height:16px; }
     }
   </style>
 </head>
@@ -296,7 +293,7 @@
       i.addEventListener('focus', () => setActive(i));
     });
 
-    // Music toggle (starts only after user click)
+    // Music toggle
     const music = document.getElementById('music');
     const musicBtn = document.getElementById('musicBtn');
     let started = false;

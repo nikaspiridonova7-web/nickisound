@@ -5,21 +5,22 @@
   <title>n1ckiSound</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Tech/console font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      /* ЧЁРНЫЙ текст + чёрное свечение */
+      /* ЧЕРНЫЙ текст */
       --ink: #050505;
-      --glowA: rgba(0,0,0,0.90);
-      --glowB: rgba(0,0,0,0.60);
-      --glowC: rgba(0,0,0,0.35);
 
-      /* Тонкая обводка, чтобы чёрный текст не исчезал на тёмном */
-      --stroke: rgba(255,255,255,0.22);
+      /* БЕЛОЕ свечение (важно: меняем glow на white) */
+      --wg1: rgba(255,255,255,0.90);
+      --wg2: rgba(255,255,255,0.60);
+      --wg3: rgba(255,255,255,0.30);
+
+      /* тонкая светлая обводка (чтоб черный контур читался) */
+      --stroke: rgba(255,255,255,0.30);
 
       --ui: #eafcff;
     }
@@ -33,7 +34,6 @@
       font-family: Orbitron, Arial, sans-serif;
     }
 
-    /* Video background */
     #bg{
       position:fixed; inset:0;
       width:100vw; height:100vh;
@@ -41,35 +41,35 @@
       z-index:0;
     }
 
-    /* Верхняя “черная зона” под ник (чтобы ник был над “экраном”) */
+    /* верхняя темная зона */
     .topShade{
       position:fixed;
       top:0; left:0; right:0;
-      height:180px;
+      height:170px;
       z-index:1;
       pointer-events:none;
       background: linear-gradient(
         to bottom,
         rgba(0,0,0,0.92) 0%,
-        rgba(0,0,0,0.65) 45%,
+        rgba(0,0,0,0.60) 42%,
         rgba(0,0,0,0.00) 100%
       );
     }
 
-    /* Лёгкая виньетка (почти незаметно) */
+    /* легкая виньетка */
     .vignette{
       position:fixed; inset:0;
       z-index:1; pointer-events:none;
       background: radial-gradient(ellipse at center,
-        rgba(0,0,0,0.00) 52%,
+        rgba(0,0,0,0.00) 55%,
         rgba(0,0,0,0.10) 100%
       );
     }
 
-    /* Ник сверху (над “экраном”) */
+    /* НИК: опускаем ниже + не даём залезать под кнопку звука */
     .handleTop{
       position:fixed;
-      top:26px;
+      top:64px;                 /* было выше — опускаем */
       left:50%;
       transform:translateX(-50%);
       z-index:2;
@@ -80,17 +80,23 @@
 
       color: var(--ink);
       -webkit-text-stroke: 0.9px var(--stroke);
+
+      /* БЕЛОЕ свечение */
       text-shadow:
-        0 0 10px var(--glowA),
-        0 0 26px var(--glowB),
-        0 0 54px var(--glowC);
+        0 0 10px var(--wg1),
+        0 0 26px var(--wg2),
+        0 0 54px var(--wg3);
+
       user-select:none;
       white-space:nowrap;
       text-align:center;
-      padding: 4px 10px;
+      padding: 4px 12px;
+
+      /* чтобы ник не прятался за кнопкой звука справа */
+      padding-right: 84px;
     }
 
-    /* Центр-блок с ссылками (чуть ниже, чтобы ник был отдельно) */
+    /* Центрируем/поднимаем весь блок ссылок */
     .wrap{
       position:relative;
       z-index:2;
@@ -104,15 +110,18 @@
     .block{
       width:min(760px, 94vw);
       text-align:center;
-      transform: translateY(40px); /* сдвинули вниз, чтобы “ник над экраном” */
+
+      /* было ниже — теперь ПОДНИМАЕМ (и сильнее центрируем по вертикали) */
+      transform: translateY(-30px);
+
       user-select:none;
     }
 
-    /* Общий стиль текста-ссылки */
+    /* Общий стиль ссылок */
     .item{
       position:relative;
       display:inline-block;
-      padding-left:28px; /* под стрелку */
+      padding-left:28px;
       font-size:30px;
       font-weight:700;
       letter-spacing:0.01em;
@@ -120,10 +129,13 @@
       text-decoration:none;
 
       -webkit-text-stroke: 0.8px var(--stroke);
+
+      /* БЕЛОЕ свечение (усиленное) */
       text-shadow:
-        0 0 8px  var(--glowA),
-        0 0 18px var(--glowB),
-        0 0 44px var(--glowC);
+        0 0 8px  var(--wg1),
+        0 0 18px var(--wg2),
+        0 0 44px var(--wg3),
+        0 0 90px rgba(255,255,255,0.20);
 
       opacity:0.98;
       transition: transform .12s ease, opacity .12s ease, text-shadow .12s ease;
@@ -132,7 +144,7 @@
       white-space:nowrap;
     }
 
-    /* Arrow ONLY for vertical stack */
+    /* Стрелка только для столбика */
     .item::before{
       content:"";
       position:absolute;
@@ -140,11 +152,11 @@
       top:50%;
       transform: translateY(-50%);
       width:0; height:0;
-      border-left:12px solid rgba(255,255,255,0.38); /* нейтральный “светлый” */
+      border-left:12px solid rgba(255,255,255,0.55);
       border-top:7px solid transparent;
       border-bottom:7px solid transparent;
       opacity:0;
-      filter: drop-shadow(0 0 10px rgba(0,0,0,0.55));
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.30));
       transition: opacity .12s ease;
     }
 
@@ -154,9 +166,10 @@
       opacity:1;
       transform: translateX(3px);
       text-shadow:
-        0 0 12px rgba(0,0,0,0.95),
-        0 0 26px rgba(0,0,0,0.70),
-        0 0 64px rgba(0,0,0,0.40);
+        0 0 12px rgba(255,255,255,0.98),
+        0 0 26px rgba(255,255,255,0.70),
+        0 0 64px rgba(255,255,255,0.38),
+        0 0 120px rgba(255,255,255,0.22);
     }
     .item:hover::before,
     .item:focus-visible::before,
@@ -164,7 +177,6 @@
       opacity:1;
     }
 
-    /* Верхний столбик */
     .stack{
       display:inline-flex;
       flex-direction:column;
@@ -173,7 +185,6 @@
       margin-bottom:18px;
     }
 
-    /* Нижний ряд (горизонтально) — с иконками */
     .row{
       display:inline-flex;
       align-items:center;
@@ -182,29 +193,28 @@
       flex-wrap:wrap;
     }
 
-    /* Внизу: без стрелки, без отступа */
     .row .item{
       padding-left:0;
       display:inline-flex;
       align-items:center;
       gap:10px;
     }
-    .row .item::before{
-      display:none;
-    }
+    .row .item::before{ display:none; }
 
     .socIcon{
       width:20px;
       height:20px;
       object-fit:contain;
-      filter: drop-shadow(0 0 10px rgba(0,0,0,0.45));
+
+      /* белый “ореол” чтобы иконка читалась */
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.25));
       opacity:0.95;
     }
 
-    /* Music button */
+    /* Кнопка звука — уводим чуть правее/вверх, чтобы не накрывала ник */
     #musicBtn{
       position:fixed;
-      right:16px; top:16px;
+      right:12px; top:16px;
       width:54px; height:54px;
       border-radius:50%;
       border:1px solid rgba(255,255,255,0.12);
@@ -215,16 +225,19 @@
       place-items:center;
       cursor:pointer;
       z-index:3;
-      text-shadow: 0 0 16px rgba(0,0,0,0.35);
       user-select:none;
     }
 
     @media (max-width:520px){
-      .handleTop{ font-size:40px; top:22px; }
+      .handleTop{
+        font-size:40px;
+        top:56px;
+        padding-right: 74px;
+      }
       .item{ font-size:22px; }
       .row{ gap:18px; }
       .socIcon{ width:18px; height:18px; }
-      .block{ transform: translateY(32px); }
+      .block{ transform: translateY(-24px); }
     }
   </style>
 </head>
@@ -237,7 +250,6 @@
   <div class="topShade"></div>
   <div class="vignette"></div>
 
-  <!-- Ник сверху, на “черном фоне” -->
   <div class="handleTop">@n1ckySound</div>
 
   <audio id="music" loop preload="auto">
@@ -247,7 +259,6 @@
 
   <div class="wrap">
     <div class="block">
-      <!-- ВЕРТИКАЛЬНО (4) -->
       <div class="stack" aria-label="Music links">
         <a class="item" href="https://music.yandex.ru/artist/12158276" target="_blank" rel="noopener">Yandex Music</a>
         <a class="item" href="https://open.spotify.com/artist/1ryjUVQTeFololSwWIJ5ij" target="_blank" rel="noopener">Spotify</a>
@@ -255,18 +266,17 @@
         <a class="item" href="https://on.soundcloud.com/QUWKgrPuFXBpHF57A" target="_blank" rel="noopener">SoundCloud</a>
       </div>
 
-      <!-- ГОРИЗОНТАЛЬНО (3) + PNG иконки слева -->
       <div class="row" aria-label="Social links">
         <a class="item" href="https://t.me/n1ckiSound" target="_blank" rel="noopener">
-          <img class="socIcon" src="icons/telegram.png" alt="">
+          <img class="socIcon" src="icons/telegram.png" alt="" onerror="this.style.display='none'">
           Telegram
         </a>
         <a class="item" href="https://www.instagram.com/n1ckisound" target="_blank" rel="noopener">
-          <img class="socIcon" src="icons/instagram.png" alt="">
+          <img class="socIcon" src="icons/instagram.png" alt="" onerror="this.style.display='none'">
           Instagram
         </a>
         <a class="item" href="https://www.tiktok.com/@yyn1cki" target="_blank" rel="noopener">
-          <img class="socIcon" src="icons/tiktok.png" alt="">
+          <img class="socIcon" src="icons/tiktok.png" alt="" onerror="this.style.display='none'">
           TikTok
         </a>
       </div>
@@ -274,7 +284,7 @@
   </div>
 
   <script>
-    // selected item (только для верхнего столбика)
+    // selected item only for stack
     const stackItems = Array.from(document.querySelectorAll('.stack .item'));
     function setActive(el){
       stackItems.forEach(i => i.classList.remove('active'));

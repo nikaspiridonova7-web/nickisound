@@ -12,13 +12,14 @@
 
   <style>
     :root{
-      /* ТЕМНО-СИНИЙ текст + яркая синяя подсветка */
-      --ps-deep: #0b4e7a;      /* цвет букв (темный) */
-      --glow1:  rgba(42, 190, 255, 0.70);
-      --glow2:  rgba(20, 140, 255, 0.55);
-      --glow3:  rgba(20, 140, 255, 0.30);
+      /* Жёлтый текст + сильное свечение (как в рефе) */
+      --ps-yellow: #ffd54a; /* основной цвет */
+      --g1: rgba(255, 213, 74, 0.85);
+      --g2: rgba(255, 213, 74, 0.55);
+      --g3: rgba(255, 213, 74, 0.28);
 
-      --white: #eafcff;
+      --stroke: rgba(0,0,0,0.55);
+      --ui: #eafcff;
     }
 
     *{ box-sizing:border-box; }
@@ -38,13 +39,13 @@
       z-index:0;
     }
 
-    /* лёгкая виньетка (не затемняет видео сильно) */
+    /* Очень лёгкая виньетка, чтобы текст читался, но видео не “гасилось” */
     .vignette{
       position:fixed; inset:0;
       z-index:1; pointer-events:none;
       background: radial-gradient(ellipse at center,
-        rgba(0,0,0,0.00) 45%,
-        rgba(0,0,0,0.12) 100%
+        rgba(0,0,0,0.00) 48%,
+        rgba(0,0,0,0.14) 100%
       );
     }
 
@@ -60,60 +61,53 @@
     }
 
     .block{
-      width:min(720px, 92vw);
+      width:min(760px, 94vw);
       text-align:center;
       transform: translateY(-10px);
       user-select:none;
     }
 
+    /* Никнейм = такой же стиль как пункты, просто чуть крупнее */
     .handle{
-      font-size:44px;
+      font-size:52px;
       font-weight:800;
-      color:var(--white);
       letter-spacing:0.02em;
+      color: var(--ps-yellow);
+      -webkit-text-stroke: 0.9px var(--stroke);
       text-shadow:
-        0 0 12px rgba(42,190,255,0.40),
-        0 0 26px rgba(20,140,255,0.28),
-        0 0 54px rgba(20,140,255,0.18);
+        0 0 8px  var(--g1),
+        0 0 18px var(--g2),
+        0 0 42px var(--g3),
+        0 0 80px rgba(255,213,74,0.20);
       margin-bottom:18px;
     }
 
-    /* List centered block, items align like menu */
-    .list{
-      display:inline-flex;
-      flex-direction:column;
-      gap:12px;
-      align-items:flex-start;
-    }
-
-    /* Items = TEXT ONLY */
+    /* Общий стиль ссылки (текст-only, без плашек) */
     .item{
       position:relative;
       display:inline-block;
       padding-left:28px; /* под стрелку */
-      font-size:28px;
+      font-size:30px;
       font-weight:700;
       letter-spacing:0.01em;
-
-      color: var(--ps-deep);
+      color: var(--ps-yellow);
       text-decoration:none;
 
-      /* контур, чтобы тёмный текст не терялся */
-      -webkit-text-stroke: 0.7px rgba(0,0,0,0.45);
-
-      /* СИЛЬНАЯ подсветка */
+      -webkit-text-stroke: 0.8px var(--stroke);
       text-shadow:
-        0 0 6px  var(--glow1),
-        0 0 14px var(--glow2),
-        0 0 34px var(--glow3),
-        0 0 60px rgba(20,140,255,0.22);
+        0 0 7px  var(--g1),
+        0 0 16px var(--g2),
+        0 0 38px var(--g3),
+        0 0 78px rgba(255,213,74,0.18);
 
       opacity:0.98;
-      transition: transform .12s ease, opacity .12s ease, color .12s ease, text-shadow .12s ease;
+      transition: transform .12s ease, opacity .12s ease, text-shadow .12s ease;
       outline:none;
+      user-select:none;
+      white-space:nowrap;
     }
 
-    /* selection arrow */
+    /* Selection arrow */
     .item::before{
       content:"";
       position:absolute;
@@ -121,11 +115,11 @@
       top:50%;
       transform: translateY(-50%);
       width:0; height:0;
-      border-left:12px solid rgba(42,190,255,0.95);
+      border-left:12px solid rgba(255,213,74,0.98);
       border-top:7px solid transparent;
       border-bottom:7px solid transparent;
       opacity:0;
-      filter: drop-shadow(0 0 12px rgba(42,190,255,0.55));
+      filter: drop-shadow(0 0 12px rgba(255,213,74,0.55));
       transition: opacity .12s ease;
     }
 
@@ -134,17 +128,42 @@
     .item.active{
       opacity:1;
       transform: translateX(3px);
-      color: #0f6ea8; /* чуть ярче при выделении */
       text-shadow:
-        0 0 8px  rgba(42,190,255,0.85),
-        0 0 18px rgba(20,140,255,0.65),
-        0 0 42px rgba(20,140,255,0.36),
-        0 0 80px rgba(20,140,255,0.24);
+        0 0 10px rgba(255,213,74,0.95),
+        0 0 22px rgba(255,213,74,0.65),
+        0 0 52px rgba(255,213,74,0.32),
+        0 0 100px rgba(255,213,74,0.22);
     }
     .item:hover::before,
     .item:focus-visible::before,
     .item.active::before{
       opacity:1;
+    }
+
+    /* Верхний столбик */
+    .stack{
+      display:inline-flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    /* Нижний ряд (горизонтально) */
+    .row{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:26px;
+      flex-wrap:wrap;
+    }
+
+    /* Для нижнего ряда убираем стрелку и отступ, чтобы выглядело “как иконки/пункты” */
+    .row .item{
+      padding-left:0;
+    }
+    .row .item::before{
+      display:none;
     }
 
     /* Music button */
@@ -155,19 +174,20 @@
       border-radius:50%;
       border:1px solid rgba(255,255,255,0.12);
       background: rgba(0,0,0,0.40);
-      color: var(--white);
+      color: var(--ui);
       font-size:22px;
       display:grid;
       place-items:center;
       cursor:pointer;
       z-index:3;
-      text-shadow: 0 0 18px rgba(42,190,255,0.25);
+      text-shadow: 0 0 16px rgba(255,213,74,0.18);
       user-select:none;
     }
 
     @media (max-width:520px){
-      .handle{ font-size:34px; }
+      .handle{ font-size:40px; }
       .item{ font-size:22px; }
+      .row{ gap:18px; }
     }
   </style>
 </head>
@@ -188,11 +208,16 @@
     <div class="block">
       <div class="handle">@n1ckiSound</div>
 
-      <div class="list" aria-label="Links">
-        <!-- ПОРЯДОК = как ты прислала -->
+      <!-- ВЕРТИКАЛЬНО (4) -->
+      <div class="stack" aria-label="Music links">
         <a class="item" href="https://music.yandex.ru/artist/12158276" target="_blank" rel="noopener">Yandex Music</a>
         <a class="item" href="https://open.spotify.com/artist/1ryjUVQTeFololSwWIJ5ij" target="_blank" rel="noopener">Spotify</a>
+        <a class="item" href="https://music.apple.com/ru/artist/n1cki/1571725278?ls" target="_blank" rel="noopener">Apple Music</a>
         <a class="item" href="https://on.soundcloud.com/QUWKgrPuFXBpHF57A" target="_blank" rel="noopener">SoundCloud</a>
+      </div>
+
+      <!-- ГОРИЗОНТАЛЬНО (3) -->
+      <div class="row" aria-label="Social links">
         <a class="item" href="https://t.me/n1ckiSound" target="_blank" rel="noopener">Telegram</a>
         <a class="item" href="https://www.instagram.com/n1ckisound" target="_blank" rel="noopener">Instagram</a>
         <a class="item" href="https://www.tiktok.com/@yyn1cki" target="_blank" rel="noopener">TikTok</a>
@@ -201,14 +226,14 @@
   </div>
 
   <script>
-    // selected item like console menu
-    const items = Array.from(document.querySelectorAll('.item'));
+    // selected item (для верхнего столбика как “меню”)
+    const stackItems = Array.from(document.querySelectorAll('.stack .item'));
     function setActive(el){
-      items.forEach(i => i.classList.remove('active'));
+      stackItems.forEach(i => i.classList.remove('active'));
       if (el) el.classList.add('active');
     }
-    setActive(items[0]);
-    items.forEach(i => {
+    if (stackItems.length) setActive(stackItems[0]);
+    stackItems.forEach(i => {
       i.addEventListener('pointerdown', () => setActive(i));
       i.addEventListener('focus', () => setActive(i));
     });

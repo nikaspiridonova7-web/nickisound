@@ -2,20 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>@n1ckiSound</title>
+  <title>n1ckiSound</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Nunito ExtraBold 800 for buttons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800&display=swap" rel="stylesheet">
-
-  <!-- PlayStation Cyrillic for nickname (fonts-online.ru) -->
-  <style>
-    /* fonts-online.ru обычно отдает CSS по этому адресу.
-       Если вдруг не подхватится в Тильде, скажи — дам запасной вариант через @font-face. */
-    @import url("https://fonts-online.ru/fonts/playstation-cyrillic");
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -36,8 +28,7 @@
       margin:0;
       overflow:hidden;
       background:#000;
-      /* базовый шрифт не принципиален — кнопки и ник назначены отдельно */
-      font-family: Arial, sans-serif;
+      font-family: Orbitron, Arial, sans-serif;
     }
 
     #bg{
@@ -71,18 +62,17 @@
       );
     }
 
-    /* НИКНЕЙМ: PlayStation Cyrillic + пожирнее */
+    /* НИК: без обрезки, просто ниже + больше доступной ширины */
     .handleTop{
       position:fixed;
-      top:92px;
+      top:92px;                 /* ОПУСТИЛИ ниже */
       left:50%;
       transform:translateX(-50%);
       z-index:2;
 
       font-size:52px;
-      font-family: "PlayStation Cyrillic", "PlayStation", Arial, sans-serif;
-      font-weight: 900;            /* пожирнее */
-      letter-spacing:0.01em;
+      font-weight:800;
+      letter-spacing:0.02em;
 
       color: var(--ink);
       -webkit-text-stroke: 0.9px var(--stroke);
@@ -96,12 +86,13 @@
       text-align:center;
       padding: 4px 12px;
 
+      /* главное: НЕ режем и НЕ ставим ellipsis */
       max-width: calc(100vw - 24px);
       overflow: visible;
       text-overflow: clip;
     }
 
-    /* Кнопку звука */
+    /* Кнопку звука уводим выше/правее, чтобы не пересекалась */
     #musicBtn{
       position:fixed;
       right:12px; top:16px;
@@ -128,21 +119,20 @@
       padding:24px;
     }
 
+    /* БЛОК ССЫЛОК: ОПУСКАЕМ к центру экрана */
     .block{
       width:min(760px, 94vw);
       text-align:center;
-      transform: translateY(30px);
+      transform: translateY(30px);   /* было слишком высоко — опустили */
       user-select:none;
     }
 
-    /* КНОПКИ/ССЫЛКИ: Nunito ExtraBold 800 */
     .item{
       position:relative;
       display:inline-block;
       padding-left:28px;
       font-size:30px;
-      font-family: "Nunito", Arial, sans-serif;
-      font-weight:800;              /* extra bold */
+      font-weight:800; /* было 700 — сделали чуть пожирнее */
       letter-spacing:0.01em;
       color: var(--ink);
       text-decoration:none;
@@ -191,21 +181,21 @@
     .item:focus-visible::before,
     .item.active::before{ opacity:1; }
 
-    /* Столбик по центру */
+    /* ✅ ПРАВКА: СТОЛБИК ПО ЦЕНТРУ + СТРЕЛКА НЕ ЛОМАЕТ ЦЕНТР */
     .stack{
       display:inline-flex;
       flex-direction:column;
-      align-items:center;
+      align-items:center;   /* было flex-start */
       gap:12px;
       margin-bottom:18px;
     }
     .stack .item{
       text-align:center;
-      padding-left:28px;
-      padding-right:28px;
+      padding-left:28px;    /* полоса под стрелку */
+      padding-right:28px;   /* компенсируем слева, чтобы центр был реальным */
     }
     .stack .item::before{
-      left:6px;
+      left:6px;             /* стрелка внутри “полосы”, а не у самого края текста */
     }
 
     .row{
@@ -261,6 +251,7 @@
   <div class="topShade"></div>
   <div class="vignette"></div>
 
+  <!-- Ник исправлен -->
   <div class="handleTop">@n1ckiSound</div>
 
   <audio id="music" loop preload="auto">
